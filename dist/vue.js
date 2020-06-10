@@ -77,8 +77,10 @@
         case 'splice':
           insered = args.splice(2);
           break;
-      }
+      } //对于新增元素进行观测
 
+
+      insered && ob.observeArray(insered);
       return result;
     };
   });
@@ -187,6 +189,120 @@
     }
   }
 
+  //正则表达（太复杂了！！！）
+  //              字母a-zA-Z_ - . 数组小写字母 大写字母  
+  var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*"; // 标签名
+  // ?:匹配不捕获   <aaa:aaa>
+
+  var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")"); // startTagOpen 可以匹配到开始标签 正则捕获到的内容是 (标签名)
+
+  var startTagOpen = new RegExp("^<".concat(qnameCapture)); // 标签开头的正则 捕获的内容是标签名
+  // 闭合标签 </xxxxxxx>  
+
+  var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>")); // 匹配标签结尾的 </div>
+  // <div aa   =   "123"  bb=123  cc='123'
+  // 捕获到的是 属性名 和 属性值 arguments[1] || arguments[2] || arguments[2]
+
+  var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/; // 匹配属性的
+  // <div >   <br/>
+
+  var startTagClose = /^\s*(\/?)>/; // 匹配标签结束的 >
+  function parseHtml(html) {
+    function start(tagName, attrs) {
+      console.log(tagName, attrs);
+    }
+
+    function end(tagName) {
+      console.log(tagName);
+    }
+
+    function chars(text) {
+      console.log(text);
+    } // 根据 html 解析成树结构  </span></div>
+
+
+    while (html) {
+      var textEnd = html.indexOf('<'); //表明是标签
+
+      if (textEnd == 0) {
+        var startTageMatch = parseStartTag();
+
+        if (startTageMatch) {
+          // 开始标签
+          start(startTageMatch.tagName, startTageMatch.attrs);
+        }
+
+        var endTagMatch = html.match(endTag);
+
+        if (endTagMatch) {
+          advance(endTagMatch[0].length);
+          end(endTagMatch[1]);
+        } // 结束标签 
+
+      } // 如果不是0 说明是文本
+
+
+      var text = void 0;
+
+      if (textEnd > 0) {
+        text = html.substring(0, textEnd); // 是文本就把文本内容进行截取
+
+        chars(text);
+      }
+
+      if (text) {
+        advance(text.length); // 删除文本内容
+      }
+    }
+
+    function advance(n) {
+      html = html.substring(n);
+    }
+
+    function parseStartTag() {
+      var start = html.match(startTagOpen); // 匹配开始标签
+
+      if (start) {
+        var match = {
+          tagName: start[1],
+          // 匹配到的标签名
+          attrs: []
+        }; //将标签名移除
+
+        advance(start[0].length);
+
+        var _end, attr; //开始匹配标签中属性
+
+
+        while (!(_end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+          //每匹配成功就要移除
+          advance(attr[0].length); //添加属性
+
+          match.attrs.push({
+            name: attr[1],
+            value: attr[3] || attr[4] || attr[5]
+          });
+        }
+
+        if (_end) {
+          //移除节点  匹配标签结束的 >
+          advance(_end[0].length);
+          return match;
+        }
+      }
+    }
+  } // var html='<button type="submit" id="register-submit-btn" class="btn blue pull-right">注册 <i class="m-icon-swapright m-icon-white"></i>/button>            '
+  // parseHtml(html);
+
+  /**
+   * 解析器
+   * @param {*} templete 模板
+   */
+
+  function compileToFunctions(templete) {
+    return parseHtml(templete);
+  }
+
   /**
    * 初始化
    */
@@ -199,6 +315,44 @@
 
       vm.$options = options;
       initState(vm);
+
+      if (vm.$options.el) {
+        this.$mount(vm.$options.el);
+      }
+    };
+    /**
+     * 挂载
+     * 三种: render 函数 >template 模板 >取html页面的模板
+     * 
+     * new Vue({
+          el:"#app"
+         template:'<div>{{msg}}</div>',
+      //ast 语法树
+      render:()=>{
+        },
+      data:()=>{
+            return {
+              }
+      }
+    })._mount('#app');
+     */
+
+
+    Vue.prototype.$mount = function (el) {
+      var vm = this;
+      var _vm$$options = vm.$options,
+          render = _vm$$options.render,
+          template = _vm$$options.template; //render 必须是一个函数
+
+      if (!render || typeof render !== 'function') {
+        //有模板取模板
+        var _template = template || document.querySelector(el).outerHTML; //将模板解析成ast语法树
+
+
+        var _render = compileToFunctions(_template);
+
+        vm.$options.render = _render;
+      }
     };
   };
 

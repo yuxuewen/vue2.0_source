@@ -1,0 +1,21 @@
+{
+  "name": "vue2.0_source",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "cross-env": "^7.0.2",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-serve": "^1.0.1",
+    "rollup": "^2.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+  
+    "build:dev": "rollup -c",
+    "serve": "rollup -c -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

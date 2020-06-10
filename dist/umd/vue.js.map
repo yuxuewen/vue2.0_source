@@ -1,0 +1,1 @@
+{"version":3,"file":"vue.js","sources":["../../src/index.js"],"sourcesContent":["/**\r\n * vue 入口文件\r\n * @param {*} options \r\n */\r\nfunction Vue(options){\r\n    \r\n\r\n}\r\n\r\nexport default Vue;"],"names":["Vue","options"],"mappings":";;;;;;IAAA;;;;IAIA,SAASA,GAAT,CAAaC,OAAb,EAAqB;;;;;;;;"}

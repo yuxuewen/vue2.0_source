@@ -2,7 +2,8 @@
  * 初始化
  */
 import {initState} from './state.js';
-import {compileToFunctions} from './compiler/index.js'
+import {compileToFunctions} from './complier/index.js'
+import {mountComponent} from './lifecircle.js'
  export let  initMixin=(Vue)=>{
         /**
          * 在原型上添加初始化的方法
@@ -38,18 +39,19 @@ import {compileToFunctions} from './compiler/index.js'
        
         Vue.prototype.$mount=function(el){
              const vm=this;
+             el=vm.$el=document.querySelector(el);
              const {render,template}=vm.$options;
              //render 必须是一个函数
              if(!render ||  typeof render!=='function')
              {
                   //有模板取模板
-                   let _template=template || document.querySelector(el).outerHTML;
+                   let _template=template || el.outerHTML;
                    //将模板解析成ast语法树
                    const render=compileToFunctions(_template);
                    vm.$options.render=render;
 
              }
-             
+             mountComponent(vm,el); // 组件的挂载流程
                 
         }
         

@@ -1,6 +1,7 @@
 import { initMixin } from "./init";
 import {renderMixin} from './render.js'
-import {lifeCycleMixin} from './lifecircle.js'
+import {lifeCycleMixin} from './lifecycle.js'
+import {  initGlobalApi} from "./globalApi.js";
 
 /**
  * vue 入口文件
@@ -16,5 +17,7 @@ initMixin(Vue);
 renderMixin(Vue);
 //注入生命周期
 lifeCycleMixin(Vue);
+//注入全局API
+initGlobalApi(Vue);
 
 export default Vue;

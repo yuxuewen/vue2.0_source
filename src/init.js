@@ -3,16 +3,24 @@
  */
 import {initState} from './state.js';
 import {compileToFunctions} from './complier/index.js'
-import {mountComponent} from './lifecircle.js'
+import {mountComponent,callHook} from './lifecycle.js'
+import {  mergeOptions} from "./util/index.js";
+
  export let  initMixin=(Vue)=>{
         /**
          * 在原型上添加初始化的方法
          */
         Vue.prototype._init=function(options){
              const vm=this;
+             
              //将参数挂载到 vm 上
-             vm.$options=options;
+             vm.$options = mergeOptions(vm.constructor.options,options);
+             callHook(vm,'beforeCreate');
              initState(vm);
+             callHook(vm,'created');
+           
+             
+
             if(vm.$options.el)
             {
                  this.$mount(vm.$options.el);
@@ -52,6 +60,7 @@ import {mountComponent} from './lifecircle.js'
 
              }
              mountComponent(vm,el); // 组件的挂载流程
+             callHook(vm,'mounted');
                 
         }
         

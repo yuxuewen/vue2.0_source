@@ -38,3 +38,13 @@ import {patch} from './vdom/patch';
 
 
  }
+
+ export function callHook(vm,hook){
+       const hookCallbacks=vm.$options[hook] ||[];
+       for(let i=0;i<hookCallbacks.length;i++)
+      {
+          hookCallbacks[i].call(vm)
+       }
+
+
+ }

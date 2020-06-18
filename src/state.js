@@ -4,7 +4,13 @@ export let initState=(vm)=>{
      initData(vm)
        
 }
-
+/**
+ * 代理 vm[key] 
+ *      vm['_data'][key]
+ * @param {*} target 
+ * @param {*} source 
+ * @param {*} key 
+ */
 function proxy(target,source,key){
     Object.defineProperty(target,key,{
          get(){

@@ -12,15 +12,11 @@ import {  mergeOptions} from "./util/index.js";
          */
         Vue.prototype._init=function(options){
              const vm=this;
-             
              //将参数挂载到 vm 上
              vm.$options = mergeOptions(vm.constructor.options,options);
              callHook(vm,'beforeCreate');
              initState(vm);
              callHook(vm,'created');
-           
-             
-
             if(vm.$options.el)
             {
                  this.$mount(vm.$options.el);

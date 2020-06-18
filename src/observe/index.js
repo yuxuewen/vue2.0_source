@@ -3,6 +3,7 @@
  */
 import {isObject} from '../util/index.js'
 import {newArrayProto} from './array'
+import Dep from './dep.js'
  class Observer{
        constructor(data)
        {
@@ -60,9 +61,14 @@ import {newArrayProto} from './array'
   */
 
  function defineReactive(data,key,value){
+     let dep=new Dep();
        observe(value);// value 还是对象，递归
        Object.defineProperty(data,key,{
            get(){
+               if(Dep.target)
+               {
+                    dep.depend();
+               }
                return value;
 
            },
@@ -70,6 +76,9 @@ import {newArrayProto} from './array'
                if(newValue===value) return;
                //对于赋值的如果是对象 进行响应式监测
                observe(newValue);
+               value=newValue;
+               //通知视图更新
+               dep.notify();
            }
        })
 
